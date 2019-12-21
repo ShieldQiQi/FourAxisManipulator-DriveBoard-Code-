@@ -9,8 +9,8 @@
 /*单链队列－－队列的链式存储结构 */
 typedef struct QNode
 {
-	uint8_t theta[6];
-	struct QNode *next;
+	uint16_t	theta[6];
+	struct	 	QNode *next;
 }QNode,*QueuePtr;
 
 
@@ -31,7 +31,7 @@ uint8_t is_QueueEmpty(LinkQueue Q);
 
 uint8_t QueueLength(LinkQueue Q);
 
-uint8_t Push(LinkQueue *Q,uint8_t theta[6]);
+uint8_t Push(LinkQueue *Q,uint16_t theta[6]);
 
 uint8_t pop(LinkQueue *Q);
 

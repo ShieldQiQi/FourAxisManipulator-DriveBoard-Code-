@@ -71,7 +71,7 @@ uint8_t QueueLength(LinkQueue Q)
 }
 
 /*╫Ь╤сап*/
-uint8_t Push(LinkQueue *Q,uint8_t theta[6])
+uint8_t Push(LinkQueue *Q,uint16_t theta[6])
 { 
 	int i;
 	QueuePtr p=(QueuePtr)malloc(sizeof(QNode));

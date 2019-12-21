@@ -21,7 +21,7 @@ uint8_t			isTrueDataFlag = 0;
 uint8_t			count = 0;
 
 uint8_t			receiveData = 0;
-uint8_t			msgBuffer[6];
+uint16_t		msgBuffer[6];
 extern 			LinkQueue thetaArray_Queue;
 
 
@@ -56,7 +56,7 @@ void  BASIC_TIM_IRQHandler (void)
 			
 		//--------------------------------------
 		if(time1 % 30 == 0)
-		{	
+		{
 			if(!is_QueueEmpty(thetaArray_Queue))
 				if(count != 6){
 					//Set_Angle(count+1,(uint16_t)(thetaArray_Queue.front->next->theta[count]));
@@ -100,21 +100,25 @@ void RasberryPi_USART_IRQHandler(void)
 	{	
 		receiveData = USART_ReceiveData(RasberryPi_USART3);
 		LED2_ON;
+		
 		//接收报文内容
-		if(isTrueDataFlag)
+		if(isTrueDataFlag >= 2)
 		{
-			msgBuffer[isTrueDataFlag-1] = receiveData;
+			if(isTrueDataFlag % 2 == 0)	//取低8位
+				msgBuffer[isTrueDataFlag/2-1] = receiveData;
+			else												//取高8位
+				msgBuffer[isTrueDataFlag/2-1] = (((uint16_t)receiveData) << 8) | (msgBuffer[isTrueDataFlag/2-1] & 0x00FF);
 			
 			isTrueDataFlag++;
-			if(isTrueDataFlag == 7){
+			if(isTrueDataFlag == 14){
 				Push(&thetaArray_Queue,msgBuffer);
 				isTrueDataFlag = 0;
 			}
 		}
 		
 		//接收报文头
-		if(receiveData == 255){
-			isTrueDataFlag = 1;
+		if(receiveData == 255 && isTrueDataFlag < 2){
+			isTrueDataFlag++;
 		}
 		
 	}
