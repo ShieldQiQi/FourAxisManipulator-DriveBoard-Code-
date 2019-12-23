@@ -89,7 +89,7 @@ void Set_Angle(uint8_t channel,float angle)
 			TIM_SetCompare3(TIM8, (angle-135)/270*2000+1500);
 			break;
 		case 4:
-			TIM_SetCompare4(TIM8, (angle-135)/270*2000+1500);
+			TIM_SetCompare4(TIM8, (angle-90)/180*2000+1500);
 			break;
 		case 5:
 			TIM_SetCompare1(TIM1, (angle-135)/270*2000+1500);

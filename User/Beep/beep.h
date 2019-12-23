@@ -9,9 +9,9 @@
 
 #include "stm32f10x.h"
 
-#define BEEP_GPIO_PORT    	GPIOD			              /* GPIO端口 */
-#define BEEP_GPIO_CLK 	    RCC_APB2Periph_GPIOD		/* GPIO端口时钟 */
-#define BEEP_GPIO_PIN				GPIO_Pin_5			        /* 连接到SCL时钟线的GPIO */
+#define BEEP_GPIO_PORT    	GPIOE			              /* GPIO端口 */
+#define BEEP_GPIO_CLK 	    RCC_APB2Periph_GPIOE		/* GPIO端口时钟 */
+#define BEEP_GPIO_PIN				GPIO_Pin_15			        /* 连接到SCL时钟线的GPIO */
 
 #define	digitalHi(p,i)		 {p->BSRR=i;}	 						//输出为高电平		
 #define digitalLo(p,i)		 {p->BRR=i;}	 						//输出低电平

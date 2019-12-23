@@ -37,6 +37,7 @@
 "..\..\output\adc.o"
 "..\..\output\beep.o"
 "..\..\output\msg_queue.o"
+"..\..\output\control.o"
 --library_type=microlib --strict --scatter "..\..\Output\USART.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -24,3 +24,4 @@
 ..\..\output\stm32f10x_it.o: ..\..\User\AdvanceTim\AdvanceTim_PWM.h
 ..\..\output\stm32f10x_it.o: ..\..\User\Msg_queue\msg_queue.h
 ..\..\output\stm32f10x_it.o: E:\keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\..\output\stm32f10x_it.o: ..\..\User\pid\control.h

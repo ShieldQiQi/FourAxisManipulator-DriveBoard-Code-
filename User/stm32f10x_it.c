@@ -13,17 +13,22 @@
 #include "beep.h"
 #include "AdvanceTim_PWM.h"
 #include "msg_queue.h"
+#include "control.h"	
 
 uint8_t     tmp =0;
+uint8_t     triggerBeep =0;
 uint16_t    time0 = 0;
 uint8_t     time1 = 0;
 uint8_t			isTrueDataFlag = 0;
 uint8_t			count = 0;
-
+uint8_t			sendFlag = 0;		
 uint8_t			receiveData = 0;
 uint16_t		msgBuffer[6];
 extern 			LinkQueue thetaArray_Queue;
 
+extern float						Position_KP,Position_KI,Position_KD;  
+extern float		 				Velocity1,Velocity2,Velocity3,Velocity4,Velocity5,Velocity6;
+extern float 						Position1,Position2,Position3,Position4,Position5,Position6;
 
 extern __IO uint16_t 		ADC_ConvertedValue[NOFCHANEL]; 	 
 float 									ADC_ConvertedValueLocal[NOFCHANEL]; 
@@ -55,18 +60,60 @@ void  BASIC_TIM_IRQHandler (void)
 		}
 			
 		//--------------------------------------
-		if(time1 % 30 == 0)
+		if(time1 % 15 == 0)
 		{
-			if(!is_QueueEmpty(thetaArray_Queue))
-				if(count != 6){
-					//Set_Angle(count+1,(uint16_t)(thetaArray_Queue.front->next->theta[count]));
-					USART_SendData(Bluetooth_USART1, (uint16_t)(thetaArray_Queue.front->next->theta[count]));
-					count++;
-				}else{
-					count = 0;
-					USART_SendData(Bluetooth_USART1, 255);
-					pop(&thetaArray_Queue);
+			if(!is_QueueEmpty(thetaArray_Queue)){
+				//Åö×²¼ì²â¡¢°²È«´ëÊ©
+				if(thetaArray_Queue.front->next->theta[0]-180 > -90 && thetaArray_Queue.front->next->theta[0]-180 < 90 &&
+					thetaArray_Queue.front->next->theta[1]-180 < 0 && thetaArray_Queue.front->next->theta[1]-180 > -150 &&
+					thetaArray_Queue.front->next->theta[2]-180 > 0 && thetaArray_Queue.front->next->theta[2]-180 < 150){
+						
+#if	USE_PID == 1	
+					Velocity1=Position_PID1(Position1,thetaArray_Queue.front->next->theta[0]);
+					Velocity2=Position_PID2(Position2,thetaArray_Queue.front->next->theta[1]);
+					Velocity3=Position_PID3(Position3,thetaArray_Queue.front->next->theta[2]);
+					Velocity4=Position_PID4(Position4,thetaArray_Queue.front->next->theta[3]);
+					Velocity5=Position_PID5(Position5,thetaArray_Queue.front->next->theta[4]);
+					Velocity6=Position_PID6(Position6,thetaArray_Queue.front->next->theta[5]);
+						
+					Set_Pwm(Velocity1,Velocity2,Velocity3,Velocity4,Velocity5,Velocity6);
+#else					
+					Set_Angle(1,thetaArray_Queue.front->next->theta[0]-180+129);
+					Set_Angle(2,thetaArray_Queue.front->next->theta[1]-180+225);
+					Set_Angle(3,-thetaArray_Queue.front->next->theta[2]+180+40+90);
+					Set_Angle(4,thetaArray_Queue.front->next->theta[3]-180+90);
+					Set_Angle(5,135);
+					Set_Angle(6,135);
+#endif
+					
+					triggerBeep = 0;
+					beep_OFF;
+				}else//´¥·¢·äÃùÆ÷±¨¾¯
+				{
+					triggerBeep = 1;
 				}
+				
+				pop(&thetaArray_Queue);
+			}else{
+				Set_Angle(1,129);
+				Set_Angle(2,115);
+				Set_Angle(3,80);
+				Set_Angle(4,90);
+				Set_Angle(5,80);
+				Set_Angle(6,100);
+				triggerBeep = 0;
+				beep_OFF;
+			}
+		}
+		
+		//--------------------------------------
+		//Åö×²¼ì²â£¬Î£ÏÕ±¨¾¯
+		if(triggerBeep){
+			if(time0 % 10 == 0){
+				beep_ON;
+			}else if(time0 % 1 == 0){
+				beep_OFF;
+			}
 		}
 		
 		//--------------------------------------
@@ -74,9 +121,6 @@ void  BASIC_TIM_IRQHandler (void)
 		{
 			time0 = 0;
 		}
-		
-		
-		//--------------------------------------
 		if(time1 == 240)
 			time1 = 0;
 		

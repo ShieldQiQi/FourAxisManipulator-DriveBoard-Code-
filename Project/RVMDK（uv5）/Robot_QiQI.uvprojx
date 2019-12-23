@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\usart;..\..\User\nvic;..\..\User\blue_tooth;..\..\User\AdvanceTim;..\..\User\Led;..\..\User\timer;..\..\User\Encoder;..\..\User\adc;..\..\User\Beep;..\..\User\Msg_queue</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\usart;..\..\User\nvic;..\..\User\blue_tooth;..\..\User\AdvanceTim;..\..\User\Led;..\..\User\timer;..\..\User\Encoder;..\..\User\adc;..\..\User\Beep;..\..\User\Msg_queue;..\..\User\pid</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -609,6 +609,11 @@
               <FileName>msg_queue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\Msg_queue\msg_queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\pid\control.c</FilePath>
             </File>
           </Files>
         </Group>
