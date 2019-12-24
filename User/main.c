@@ -14,9 +14,11 @@
 #include "adc.h"
 #include "beep.h"
 #include "msg_queue.h"
+#include "gear_motor.h"
 
 int main(void)
 {	
+	GearMotor_Config();
   USART3_Config();
 	USART1_Config();
 	LED_GPIO_Config();

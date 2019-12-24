@@ -14,11 +14,15 @@
 #include "AdvanceTim_PWM.h"
 #include "msg_queue.h"
 #include "control.h"	
+#include "gear_motor.h"
 
 uint8_t     tmp =0;
 uint8_t     triggerBeep =0;
 uint16_t    time0 = 0;
 uint8_t     time1 = 0;
+uint16_t    time2 = 0;
+uint8_t     is_nextText = 0;
+uint8_t     is_meetEnd = 0;
 uint8_t			isTrueDataFlag = 0;
 uint8_t			count = 0;
 uint8_t			sendFlag = 0;		
@@ -94,6 +98,10 @@ void  BASIC_TIM_IRQHandler (void)
 				}
 				
 				pop(&thetaArray_Queue);
+				
+				//写完一个字、移动宣纸位置
+				if(is_QueueEmpty(thetaArray_Queue))
+					is_nextText = 1;
 			}else{
 				Set_Angle(1,129);
 				Set_Angle(2,115);
@@ -114,6 +122,38 @@ void  BASIC_TIM_IRQHandler (void)
 			}else if(time0 % 1 == 0){
 				beep_OFF;
 			}
+		}
+		
+		//--------------------------------------
+		//写完一个字、移动宣纸
+		if(is_nextText && is_meetEnd != 5 )
+		{
+			if(time2 != 400){
+				FWD;
+				time2++;
+			}else if(time2 == 400){
+				STOP;
+				is_nextText = 0;
+				is_meetEnd ++;
+				time2 = 0;
+				//告知主机已经写完一个字
+				USART_SendData(RasberryPi_USART3,0);
+			}
+		}else if(is_meetEnd != 5){
+			time2 = 0;
+		}
+		//写到尽头、回起始点换纸
+		if(is_meetEnd == 5)
+		{
+			if(time2 == 0){
+				STOP;
+			}else if(time2 == 100){
+				REV;
+			}else if(time2 == 2100){
+				STOP;
+				is_meetEnd = 0;
+			}
+			time2++;
 		}
 		
 		//--------------------------------------
