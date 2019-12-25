@@ -30,12 +30,12 @@ int main(void)
 	
 	Init_usartMsg_Queue();
 	
-	Set_Angle(1,129);
-	Set_Angle(2,115);
-	Set_Angle(3,40);
-	Set_Angle(4,90);
-	Set_Angle(5,80);
-	Set_Angle(6,100);
+//	Set_Angle(1,129);
+//	Set_Angle(2,115);
+//	Set_Angle(3,40);
+//	Set_Angle(4,90);
+//	Set_Angle(5,80);
+//	Set_Angle(6,100);
 	while(1)
 	{
 		

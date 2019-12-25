@@ -17,6 +17,7 @@
 #include "gear_motor.h"
 
 uint8_t     tmp =0;
+uint8_t     restCount =0;
 uint8_t     triggerBeep =0;
 uint16_t    time0 = 0;
 uint8_t     time1 = 0;
@@ -36,7 +37,6 @@ extern float 						Position1,Position2,Position3,Position4,Position5,Position6;
 
 extern __IO uint16_t 		ADC_ConvertedValue[NOFCHANEL]; 	 
 float 									ADC_ConvertedValueLocal[NOFCHANEL]; 
-
 
 
 /*------------------------------------------------------------------------------------------------------------------------------------------------
@@ -67,48 +67,74 @@ void  BASIC_TIM_IRQHandler (void)
 		if(time1 % 15 == 0)
 		{
 			if(!is_QueueEmpty(thetaArray_Queue)){
-				//碰撞检测、安全措施
-				if(thetaArray_Queue.front->next->theta[0]-180 > -90 && thetaArray_Queue.front->next->theta[0]-180 < 90 &&
-					thetaArray_Queue.front->next->theta[1]-180 < 0 && thetaArray_Queue.front->next->theta[1]-180 > -150 &&
-					thetaArray_Queue.front->next->theta[2]-180 > 0 && thetaArray_Queue.front->next->theta[2]-180 < 150){
+				
+				if(restCount < 5)
+				{
+					//碰撞检测、安全措施
+					if(thetaArray_Queue.front->next->theta[0]-180 >= -90 && thetaArray_Queue.front->next->theta[0]-180 <= 90 &&
+						thetaArray_Queue.front->next->theta[1]-180 < 0 && thetaArray_Queue.front->next->theta[1]-180 > -150 &&
+						thetaArray_Queue.front->next->theta[2]-180 > 0 && thetaArray_Queue.front->next->theta[2]-180 < 150){
 						
 #if	USE_PID == 1	
-					Velocity1=Position_PID1(Position1,thetaArray_Queue.front->next->theta[0]);
-					Velocity2=Position_PID2(Position2,thetaArray_Queue.front->next->theta[1]);
-					Velocity3=Position_PID3(Position3,thetaArray_Queue.front->next->theta[2]);
-					Velocity4=Position_PID4(Position4,thetaArray_Queue.front->next->theta[3]);
-					Velocity5=Position_PID5(Position5,thetaArray_Queue.front->next->theta[4]);
-					Velocity6=Position_PID6(Position6,thetaArray_Queue.front->next->theta[5]);
-						
-					Set_Pwm(Velocity1,Velocity2,Velocity3,Velocity4,Velocity5,Velocity6);
+							Velocity1=Position_PID1(Position1,thetaArray_Queue.front->next->theta[0]);
+							Velocity2=Position_PID2(Position2,thetaArray_Queue.front->next->theta[1]);
+							Velocity3=Position_PID3(Position3,thetaArray_Queue.front->next->theta[2]);
+							Velocity4=Position_PID4(Position4,thetaArray_Queue.front->next->theta[3]);
+							Velocity5=Position_PID5(Position5,thetaArray_Queue.front->next->theta[4]);
+							Velocity6=Position_PID6(Position6,thetaArray_Queue.front->next->theta[5]);
+								
+							Set_Pwm(Velocity1,Velocity2,Velocity3,Velocity4,Velocity5,Velocity6);
 #else					
-					Set_Angle(1,thetaArray_Queue.front->next->theta[0]-180+129);
-					Set_Angle(2,thetaArray_Queue.front->next->theta[1]-180+225);
-					Set_Angle(3,-thetaArray_Queue.front->next->theta[2]+180+40+90);
-					Set_Angle(4,thetaArray_Queue.front->next->theta[3]-180+90);
-					Set_Angle(5,135);
-					Set_Angle(6,135);
+							Set_Angle(1,thetaArray_Queue.front->next->theta[0]-180+129);
+							Set_Angle(2,thetaArray_Queue.front->next->theta[1]-180+225);
+							Set_Angle(3,-thetaArray_Queue.front->next->theta[2]+180+40+90);
+							Set_Angle(4,thetaArray_Queue.front->next->theta[3]-180+90);
+							Set_Angle(5,135);
+							Set_Angle(6,135);
 #endif
 					
-					triggerBeep = 0;
-					beep_OFF;
-				}else//触发蜂鸣器报警
-				{
-					triggerBeep = 1;
+							triggerBeep = 0;
+							beep_OFF;
+						}else//触发蜂鸣器报警
+						{
+							triggerBeep = 1;
+						}
+						
+						pop(&thetaArray_Queue);
+				}else{
+					if(restCount <= 7){
+						restCount++;
+						Set_Angle(2,115);
+						Set_Angle(3,80);
+						Set_Angle(4,90);
+					}else if(restCount <= 11)
+					{
+						restCount++;
+						Set_Angle(1,129);
+					}else{
+						restCount = 0;
+					}
+					
 				}
-				
-				pop(&thetaArray_Queue);
-				
 				//写完一个字、移动宣纸位置
 				if(is_QueueEmpty(thetaArray_Queue))
 					is_nextText = 1;
 			}else{
-				Set_Angle(1,129);
-				Set_Angle(2,115);
-				Set_Angle(3,80);
-				Set_Angle(4,90);
-				Set_Angle(5,80);
-				Set_Angle(6,100);
+				if(restCount <=2)
+				{
+					Set_Angle(2,115);
+					Set_Angle(3,80);
+					Set_Angle(4,90);
+					restCount++;
+				}else if(restCount <=4)
+				{
+					Set_Angle(1,129+90);
+					Set_Angle(2,135);
+					Set_Angle(3,60);
+					restCount++;
+				}else if(restCount ==5){
+					Set_Angle(3,40);
+				}
 				triggerBeep = 0;
 				beep_OFF;
 			}
@@ -128,10 +154,10 @@ void  BASIC_TIM_IRQHandler (void)
 		//写完一个字、移动宣纸
 		if(is_nextText && is_meetEnd != 5 )
 		{
-			if(time2 != 400){
+			if(time2 != 500){
 				FWD;
 				time2++;
-			}else if(time2 == 400){
+			}else if(time2 == 500){
 				STOP;
 				is_nextText = 0;
 				is_meetEnd ++;
@@ -149,7 +175,7 @@ void  BASIC_TIM_IRQHandler (void)
 				STOP;
 			}else if(time2 == 100){
 				REV;
-			}else if(time2 == 2100){
+			}else if(time2 == 2600){
 				STOP;
 				is_meetEnd = 0;
 			}
