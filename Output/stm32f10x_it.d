@@ -1,4 +1,5 @@
 ..\..\output\stm32f10x_it.o: ..\..\User\stm32f10x_it.c
+..\..\output\stm32f10x_it.o: E:\keil5\ARM\ARMCC\Bin\..\include\math.h
 ..\..\output\stm32f10x_it.o: ..\..\User\stm32f10x_it.h
 ..\..\output\stm32f10x_it.o: ..\..\Libraries\CMSIS\stm32f10x.h
 ..\..\output\stm32f10x_it.o: ..\..\Libraries\CMSIS\core_cm3.h
