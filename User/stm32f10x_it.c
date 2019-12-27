@@ -122,6 +122,12 @@ void  BASIC_TIM_IRQHandler (void)
 							time_used = 0;
 							pop(&thetaArray_Queue);
 							onWriting = 1;
+							
+							if(deltaMax > 6)
+								onWriting = 0;
+							
+							deltaMax = 0;
+							
 						}else
 						{
 							if(time_used == 0){
@@ -151,6 +157,7 @@ void  BASIC_TIM_IRQHandler (void)
 					}else//触发蜂鸣器报警
 					{
 						triggerBeep = 1;
+						pop(&thetaArray_Queue);
 					}
 				}else{
 					m = 0;
@@ -226,12 +233,12 @@ void  BASIC_TIM_IRQHandler (void)
 		
 		//--------------------------------------
 		//写完一个字、移动宣纸
-		if(is_nextText && is_meetEnd != 5 )
+		if(is_nextText && is_meetEnd != 4 )
 		{
-			if(time2 != 500){
-				FWD;
+			if(time2 != 650){
+				//FWD;
 				time2++;
-			}else if(time2 == 500){
+			}else if(time2 == 650){
 				STOP;
 				is_nextText = 0;
 				is_meetEnd ++;
@@ -239,17 +246,17 @@ void  BASIC_TIM_IRQHandler (void)
 				//告知主机已经写完一个字
 				USART_SendData(RasberryPi_USART3,0);
 			}
-		}else if(is_meetEnd != 5){
+		}else if(is_meetEnd != 4){
 			time2 = 0;
 		}
 		//写到尽头、回起始点换纸
-		if(is_meetEnd == 5)
+		if(is_meetEnd == 4)
 		{
 			if(time2 == 0){
 				STOP;
 			}else if(time2 == 100){
-				REV;
-			}else if(time2 == 2600){
+				//REV;
+			}else if(time2 == 2700){
 				STOP;
 				is_meetEnd = 0;
 			}
